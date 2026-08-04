@@ -17,6 +17,7 @@ Mario::Mario()
     maxFallSpeed = 700.0f;
     direction = NONE;
     inGround = true;
+    isGrowth = false;
 }
 void Mario::update(float deltaTime)
 {
@@ -107,20 +108,6 @@ bool Mario::headCollision(Rectangle head, Rectangle Block)
     }
     return false;
 }
-bool Mario::RightCollision(Rectangle playerright, Rectangle Block)
-{
-    if(CheckCollisionRecs(playerright, Block)) 
-    {
-        return true;
-    }
-    return false;
-}
-bool Mario::LeftCollision(Rectangle playerLeft, Rectangle Block) {
-    if(CheckCollisionRecs(playerLeft, Block)) {
-        return true;
-    }
-    return false;
-}
 void Mario::landOn(float floorY)
 {
     position.y = floorY - Hitbox.height;
@@ -129,9 +116,32 @@ void Mario::landOn(float floorY)
 
     Hitbox.y = position.y;
 }
+void Mario::MarioGrowth()
+{
+    Hitbox.height += 50;
+    health += 1;
+    isGrowth = true;
+}
+void Mario::collideFromLeft(float blockLeft)
+{
+    position.x = blockLeft - Hitbox.width;
+    velocity.x = 0.0f;
+    Hitbox.x = position.x;
+}
+
+void Mario::collideFromRight(float blockRight)
+{
+    position.x = blockRight;
+    velocity.x = 0.0f;
+    Hitbox.x = position.x;
+}
 bool Mario::isFalling() const
 {
     return velocity.y >= 0.0f;
+}
+bool Mario::getGrowth() const
+{
+    return isGrowth;
 }
 void Mario::draw()
 {
