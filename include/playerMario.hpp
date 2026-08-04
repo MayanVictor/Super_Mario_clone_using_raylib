@@ -12,8 +12,10 @@ class Mario {
         Rectangle getHitbox();
         bool IsInGround(bool inground);
         bool headCollision(Rectangle head, Rectangle Block);
-        bool RightCollision(Rectangle playerright, Rectangle Block);
-        bool LeftCollision(Rectangle playerLeft, Rectangle Block);
+        bool getGrowth() const ;
+        void MarioGrowth();
+        void collideFromLeft(float blockLeft);
+        void collideFromRight(float blockRight);
         void landOn(float floorY);
         bool isFalling() const;
         void draw();
@@ -31,4 +33,5 @@ class Mario {
         float jumpSpeed ;
         float maxFallSpeed;
         bool inGround;
+        bool isGrowth;
 };
