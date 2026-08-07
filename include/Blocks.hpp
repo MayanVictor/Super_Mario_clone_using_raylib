@@ -7,9 +7,11 @@ class Block {
 public:
     Block(Rectangle rect, BlockType blockType, BlockContent Content = BlockContent::NONE);
     void draw();
+    BlockContent activate();
     Rectangle getHitbox() const;
     BlockType getType() const;
     BlockContent getContent() const;
+    bool isBlockUsed() const;
 private:
     Rectangle hitbox;
     BlockType type;

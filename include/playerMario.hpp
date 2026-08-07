@@ -8,15 +8,22 @@ class Mario {
         void update(float deltaTime);
         void jump();
         void stopJump();
+        void stopVerticalMovement();
         Direction setDirection(Direction dir);
         Rectangle getHitbox();
         bool IsInGround(bool inground);
         bool headCollision(Rectangle head, Rectangle Block);
         bool getGrowth() const ;
         void MarioGrowth();
-        void collideFromLeft(float blockLeft);
-        void collideFromRight(float blockRight);
+        void hitWallOnLeft(float blockRight);
+        void hitWallOnRight(float blockLeft);
         void landOn(float floorY);
+        void loselife();
+        void gainlife();
+        void addCoin();
+        int getLifes() const;
+        int getCoins() const;
+        void resetCoins();
         bool isFalling() const;
         void draw();
     private:
@@ -25,6 +32,8 @@ class Mario {
         Rectangle Hitbox;
         Direction direction;
         int health;
+        int lifes;
+        int coins;
         float gravity;
         float groundFriction;
         float fallGravityMultiplier;
