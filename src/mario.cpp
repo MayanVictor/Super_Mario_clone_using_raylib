@@ -9,6 +9,7 @@ int main() {
     // Initialization
     const int screenWidth = 800;
     const int screenHeight = 600;
+    int coins = 0;
     Mario mario;
     std::vector<Block> blocks;
     blocks.push_back(Block({200, 300, 50, 50}, SOLID));
@@ -39,7 +40,11 @@ int main() {
         
         // Update
 
+        Rectangle previousHitbox = mario.getHitbox();
+
         mario.update(deltaTime);
+
+        Rectangle currentHitbox = mario.getHitbox();
 
         Rectangle groundCheck = {mario.getHitbox().x, mario.getHitbox().y + mario.getHitbox().height, mario.getHitbox().width, 3};
         Rectangle HeadCheck = {mario.getHitbox().x + 5, mario.getHitbox().y - 3, mario.getHitbox().width - 10, 3 };
@@ -49,21 +54,42 @@ int main() {
         if(CheckCollisionRecs(groundCheck, floor) && mario.isFalling()) {
             mario.landOn(floor.y);
         }
+        for(Block& block : blocks) {   
+            bool wasAbove =
+            previousHitbox.y + previousHitbox.height <= block.getHitbox().y;
+
+            bool isNowTouching =
+                CheckCollisionRecs(currentHitbox, block.getHitbox());
+
+            if(isNowTouching && wasAbove && mario.isFalling())
+            {
+                mario.landOn(block.getHitbox().y);
+            }
+        }
         for(Block& block : blocks) {
             if(mario.headCollision(HeadCheck, block.getHitbox()) && !mario.isFalling()) {
-                mario.stopJump();
+                mario.stopVerticalMovement();
+                BlockContent content = block.activate();
+                if(content == BlockContent::COIN) {
+                    mario.addCoin();
+                }
             }
             if(CheckCollisionRecs(leftcheck, block.getHitbox())) {
-                mario.collideFromLeft(block.getHitbox().x + block.getHitbox().width);
+                mario.hitWallOnLeft(block.getHitbox().x + block.getHitbox().width);
             }
             if(CheckCollisionRecs(rightcheck, block.getHitbox())) {
-                mario.collideFromRight(block.getHitbox().x);
+                mario.hitWallOnRight(block.getHitbox().x);
             }
+        }
 
+        if(mario.getCoins() >= 100) {
+            mario.gainlife();
+            mario.resetCoins();
         }
         // Draw
         BeginDrawing();
         ClearBackground(SKYBLUE);
+        DrawText(TextFormat("Coins: %d", mario.getCoins()), 10, 10, 20, RAYWHITE);
         DrawRectangleRec(floor, BROWN);
         mario.draw();
         for(Block& block : blocks) {

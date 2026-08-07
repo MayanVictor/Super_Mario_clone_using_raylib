@@ -5,6 +5,8 @@
 Mario::Mario() 
 {
     health = 1;
+    lifes = 3;
+    coins = 0;
     position = { 100.0f, 425.0f };
     velocity = { 0.0f, 0.0f };
     acceleration = 900.0f;
@@ -12,7 +14,7 @@ Mario::Mario()
     gravity = 1400.0f;
     fallGravityMultiplier = 1.5f;
     maxMoveSpeed = 200.0f;
-    jumpSpeed = 520.0f;
+    jumpSpeed = 750.0f;
     groundFriction = 1100.0f;
     maxFallSpeed = 700.0f;
     direction = NONE;
@@ -81,10 +83,25 @@ void Mario::jump()
 }
 void Mario::stopJump()
 {
-    if(velocity.y < -150.0f)
+    if(velocity.y < -400.0f)
     {
-        velocity.y = -150.0f;
+        velocity.y = -400.0f;
     }
+}
+void Mario::stopVerticalMovement()
+{
+    velocity.y = 0.0f;
+}
+void Mario::loselife()
+{
+    if(lifes > 0)
+    {
+        lifes--;
+    }
+}
+void Mario::gainlife()
+{
+    lifes++;
 }
 Direction Mario::setDirection(Direction dir)
 {
@@ -122,18 +139,34 @@ void Mario::MarioGrowth()
     health += 1;
     isGrowth = true;
 }
-void Mario::collideFromLeft(float blockLeft)
+void Mario::hitWallOnRight(float blockLeft)
 {
     position.x = blockLeft - Hitbox.width;
     velocity.x = 0.0f;
     Hitbox.x = position.x;
 }
 
-void Mario::collideFromRight(float blockRight)
+void Mario::hitWallOnLeft(float blockRight)
 {
     position.x = blockRight;
     velocity.x = 0.0f;
     Hitbox.x = position.x;
+}
+int Mario::getLifes() const
+{
+    return lifes;
+}
+int Mario::getCoins() const
+{
+    return coins;
+}
+void Mario::resetCoins()
+{
+    coins = 0;
+}
+void Mario::addCoin()
+{
+    coins++;
 }
 bool Mario::isFalling() const
 {
