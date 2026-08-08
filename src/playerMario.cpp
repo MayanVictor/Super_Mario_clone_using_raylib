@@ -4,7 +4,6 @@
 
 Mario::Mario() 
 {
-    health = 1;
     lifes = 3;
     coins = 0;
     position = { 100.0f, 425.0f };
@@ -20,6 +19,7 @@ Mario::Mario()
     direction = NONE;
     inGround = true;
     isGrowth = false;
+    state = MarioState::SMALL;
 }
 void Mario::update(float deltaTime)
 {
@@ -88,9 +88,12 @@ void Mario::stopJump()
         velocity.y = -400.0f;
     }
 }
-void Mario::stopVerticalMovement()
+void Mario::hitCeiling(float blockBottom)
 {
+    position.y = blockBottom;
     velocity.y = 0.0f;
+
+    Hitbox.y = position.y;
 }
 void Mario::loselife()
 {
@@ -135,9 +138,17 @@ void Mario::landOn(float floorY)
 }
 void Mario::MarioGrowth()
 {
-    Hitbox.height += 50;
-    health += 1;
+    if(isGrowth) {
+        return; // Already in BIG state, do nothing
+    }
+    state = MarioState::BIG;
+    Hitbox.height = 100;
     isGrowth = true;
+}
+void Mario::MarioFire()
+{
+    state = MarioState::FIRE;
+    Hitbox.height = 100;
 }
 void Mario::hitWallOnRight(float blockLeft)
 {
@@ -172,11 +183,17 @@ bool Mario::isFalling() const
 {
     return velocity.y >= 0.0f;
 }
-bool Mario::getGrowth() const
+MarioState Mario::getState() const
 {
-    return isGrowth;
+    return state;
 }
 void Mario::draw()
 {
-    DrawRectangleRec(Hitbox, RED);
+    if(state == MarioState::SMALL) {
+        DrawRectangleRec(Hitbox, RED);
+    } else if(state == MarioState::BIG) {
+        DrawRectangleRec(Hitbox, GREEN);
+    } else if(state == MarioState::FIRE) {
+        DrawRectangleRec(Hitbox, ORANGE);
+    }
 }

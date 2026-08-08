@@ -6,6 +6,11 @@ Block::Block(Rectangle rect, BlockType blockType, BlockContent Content)
 void Block::draw() 
 {
     Color blockColor = GRAY;
+
+    if(isBroken) 
+    {
+        return; // Don't draw broken bricks
+    }
     switch (type) 
     {
         case SOLID:
@@ -20,6 +25,18 @@ void Block::draw()
     }
     DrawRectangleRec(hitbox, blockColor);
 }
+bool Block::isDestroyed() const
+{
+    return isBroken;
+}
+void Block::BrickDestroyed() 
+{
+    if(type == BRICK && !isBroken) 
+    {
+        isBroken = true;
+        isUsed = true;
+    }
+}
 BlockContent Block::activate() 
 {
     if(type != QUESTION || isUsed)
@@ -29,25 +46,9 @@ BlockContent Block::activate()
 
     isUsed = true;
 
-    if(content == BlockContent::COIN) 
-    {
-        return BlockContent::COIN;
-    } 
-    else if(content == BlockContent::MUSHROOM) 
-    {
-        return BlockContent::MUSHROOM;
-    } 
-    else if(content == BlockContent::FIRE_FLOWER) 
-    {
-        return BlockContent::FIRE_FLOWER;
-    } 
-    else 
-    {
-        return BlockContent::NONE;
-    } 
-
     BlockContent released = content;
     content = BlockContent::NONE;
+
     return released;
 }
 Rectangle Block::getHitbox() const 
