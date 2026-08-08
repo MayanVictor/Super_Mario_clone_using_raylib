@@ -2,19 +2,21 @@
 #include <raylib.h>
 
 enum Direction { LEFT, RIGHT, NONE };
+enum MarioState { SMALL, BIG, FIRE };
 class Mario {
     public:
         Mario();
         void update(float deltaTime);
         void jump();
         void stopJump();
-        void stopVerticalMovement();
+        void hitCeiling(float blockBottom);
         Direction setDirection(Direction dir);
         Rectangle getHitbox();
+        MarioState getState() const ;
         bool IsInGround(bool inground);
         bool headCollision(Rectangle head, Rectangle Block);
-        bool getGrowth() const ;
         void MarioGrowth();
+        void MarioFire();
         void hitWallOnLeft(float blockRight);
         void hitWallOnRight(float blockLeft);
         void landOn(float floorY);
@@ -31,7 +33,7 @@ class Mario {
         Vector2 velocity;
         Rectangle Hitbox;
         Direction direction;
-        int health;
+        MarioState state;
         int lifes;
         int coins;
         float gravity;

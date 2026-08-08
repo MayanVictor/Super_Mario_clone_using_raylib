@@ -2,11 +2,13 @@
 #include <raylib.h>
 
 enum BlockType { SOLID, BRICK, QUESTION};
-enum class BlockContent {NONE, COIN, MUSHROOM, FIRE_FLOWER};
+enum class BlockContent { NONE, COIN, POWERUP, STAR };
 class Block {
 public:
     Block(Rectangle rect, BlockType blockType, BlockContent Content = BlockContent::NONE);
     void draw();
+    bool isDestroyed() const;
+    void BrickDestroyed();
     BlockContent activate();
     Rectangle getHitbox() const;
     BlockType getType() const;
