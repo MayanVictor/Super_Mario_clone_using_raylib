@@ -7,6 +7,9 @@
             "command": "C:/msys64/ucrt64/bin/g++.exe",
             "args": [
                 "src/mario.cpp",
+                "src/playerMario.cpp",
+                "src/Blocks.cpp",
+                "src/PowerUps.cpp",
                 "-o",
                 "${workspaceFolder}/mario.exe",
                 "-I${workspaceFolder}/include",
