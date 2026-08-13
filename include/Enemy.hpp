@@ -10,10 +10,13 @@ class Enemy {
         Rectangle getHitbox() const;
         EnemyType getType() const;
         bool isAlive() const;
+        float getVelocityX() const;
 
         void hitWallOnRight(float blockLeft);
         void hitWallOnLeft(float blockRight);
         void LandOn(float floorY);
+        void invertDirection();
+        void setX(float x);
         
         Rectangle getGroundCheck() const;
         Rectangle getLeftCheck() const;

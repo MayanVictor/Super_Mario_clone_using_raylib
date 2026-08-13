@@ -30,6 +30,7 @@ class Mario {
         void addCoin();
         int getLifes() const;
         int getCoins() const;
+        float getVelocityX() const;
         void resetCoins();
         bool isFalling() const;
         void draw();
