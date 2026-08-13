@@ -81,6 +81,10 @@ void Mario::jump()
         inGround = false;
     }
 }
+void Mario::bounce()
+{
+    velocity.y = -jumpSpeed * 0.25f; // Bounce with 25% of the jump speed
+}
 void Mario::stopJump()
 {
     if(velocity.y < -400.0f)
@@ -115,18 +119,44 @@ Rectangle Mario::getHitbox()
 {
     return Hitbox;
 }
-bool Mario::IsInGround(bool inground)
-{
-    inGround = inground;
-    return inGround;
+Vector2 Mario::getPosition() {
+    return position;
 }
-bool Mario::headCollision(Rectangle head, Rectangle Block)
+Rectangle Mario::getGroundCheck() const
 {
-    if(CheckCollisionRecs(head, Block)) 
-    {
-        return true;
-    }
-    return false;
+    return {
+        Hitbox.x,
+        Hitbox.y + Hitbox.height,
+        Hitbox.width,
+        3.0f
+    };
+}
+Rectangle Mario::getHeadCheck() const
+{
+    return {
+        Hitbox.x + 5.0f,
+        Hitbox.y - 3.0f,
+        Hitbox.width - 10.0f,
+        3.0f
+    };
+}
+Rectangle Mario::getLeftCheck() const
+{
+    return {
+        Hitbox.x - 3.0f,
+        Hitbox.y + 5.0f,
+        3.0f,
+        Hitbox.height - 10.0f
+    };
+}
+Rectangle Mario::getRightCheck() const
+{
+    return {
+        Hitbox.x + Hitbox.width,
+        Hitbox.y + 5.0f,
+        3.0f,
+        Hitbox.height - 10.0f
+    };
 }
 void Mario::landOn(float floorY)
 {
@@ -167,6 +197,10 @@ int Mario::getLifes() const
 {
     return lifes;
 }
+float Mario::getVelocityX() const
+{
+    return velocity.x;
+}
 int Mario::getCoins() const
 {
     return coins;
@@ -187,13 +221,18 @@ MarioState Mario::getState() const
 {
     return state;
 }
+MarioState Mario::setState(MarioState newState)
+{
+    state = newState;
+    return state;
+}
 void Mario::draw()
 {
     if(state == MarioState::SMALL) {
         DrawRectangleRec(Hitbox, RED);
     } else if(state == MarioState::BIG) {
-        DrawRectangleRec(Hitbox, GREEN);
+        DrawRectangleRec(Hitbox, RED);
     } else if(state == MarioState::FIRE) {
-        DrawRectangleRec(Hitbox, ORANGE);
+        DrawRectangleRec(Hitbox, RAYWHITE);
     }
 }
