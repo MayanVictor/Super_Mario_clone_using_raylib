@@ -2,6 +2,8 @@
 
 ## Controls
 - arrows to walk and jump
+- Shift to run
+- Q to shot fireballs
   
 ## Project Structure
 
@@ -16,7 +18,7 @@ C++ Developed Project Using Raylib
 ## compile
 compile the project in vscode with:
 ```bash
-g++ src/mario.cpp src/playerMario.cpp src/PowerUps src/Blocks.cpp -o mario.exe -Iinclude -I/ucrt64/include -L/ucrt64/lib -lraylib
+g++ src/mario.cpp src/playerMario.cpp src/PowerUps src/Blocks.cpp src/Shell.cpp src/FireBall.cpp -o mario.exe -Iinclude -I/ucrt64/include -L/ucrt64/lib -lraylib
 ```
 
 Or you can add the .vscode paste and then you can press F5 to compile and run the code.
