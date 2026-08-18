@@ -28,6 +28,7 @@ public:
 
     bool exists() const;
     bool isActive() const;
+    bool isFalling() const;
 
 private:
     PowerUpType type;

@@ -11,7 +11,8 @@ class Mario {
         void stopJump();
         void bounce();
         void hitCeiling(float blockBottom);
-        Direction setDirection(Direction dir);
+        void setDirection(Direction dir);
+        Direction getFacingDirection() const;
         Rectangle getHitbox();
         Rectangle getGroundCheck() const;
         Rectangle getHeadCheck() const; 
@@ -28,8 +29,12 @@ class Mario {
         void loselife();
         void gainlife();
         void addCoin();
+        void SpeedUp();
+        void SpeedDown();
         int getLifes() const;
         int getCoins() const;
+        bool getStarPower() const;
+        void obtainStar();
         float getVelocityX() const;
         void resetCoins();
         bool isFalling() const;
@@ -39,6 +44,7 @@ class Mario {
         Vector2 velocity;
         Rectangle Hitbox;
         Direction direction;
+        Direction facingdirection;
         MarioState state;
         int lifes;
         int coins;
@@ -51,4 +57,7 @@ class Mario {
         float maxFallSpeed;
         bool inGround;
         bool isGrowth;
+        bool starPower;
+        float starTimer;
+        float starDuration;
 };

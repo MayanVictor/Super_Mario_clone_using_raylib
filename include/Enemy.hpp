@@ -1,7 +1,7 @@
 #pragma once 
 #include <raylib.h>
 
-enum class EnemyType { GOOMBA, KOOPA, PIRANHA_PLANT };
+enum class EnemyType { GOOMBA, KOOPA };
 class Enemy {
     public:
         Enemy(EnemyType type, Vector2 position);
@@ -10,8 +10,10 @@ class Enemy {
         Rectangle getHitbox() const;
         EnemyType getType() const;
         bool isAlive() const;
+        bool isActive() const;
         float getVelocityX() const;
 
+        void setActive(bool isActive);
         void hitWallOnRight(float blockLeft);
         void hitWallOnLeft(float blockRight);
         void LandOn(float floorY);
@@ -30,4 +32,6 @@ class Enemy {
         bool alive;
         float gravity;
         float maxFallSpeed;
+
+        bool active;
 };
