@@ -2,20 +2,23 @@
 #include <raymath.h>
 #include "Enemy.hpp"
 
-Enemy::Enemy(EnemyType type, Vector2 position)
-    : type(type), position(position), velocity({-100.0f, 0.0f}), alive(true), gravity(1400.0f), maxFallSpeed(700.0f)
+Enemy::Enemy(EnemyType Type, Vector2 Position)
 {
+    type = Type;
+    position = Position;
+    velocity = {-100.0f, 0.0f};
+    alive = true;
+    gravity = 1400.0f;
+    maxFallSpeed = 700.0f;
+    active = false;
     hitbox = {position.x, position.y, 50.0f, 50.0f};
 }
 void Enemy::update(float deltaTime)
 {
-    if(!alive)
+    if(!alive || !active)
         return;
 
-
-    float currentGravity = gravity;
-
-    velocity.y += currentGravity * deltaTime;
+    velocity.y += gravity * deltaTime;
 
     if(velocity.y > maxFallSpeed)
     {
@@ -40,9 +43,6 @@ void Enemy::draw()
             break;
         case EnemyType::KOOPA:
             DrawRectangleV(position, {50, 50}, GREEN);
-            break;
-        case EnemyType::PIRANHA_PLANT:
-            DrawRectangleV(position, {50, 50}, RED);
             break;
         default:
             break;
@@ -75,6 +75,14 @@ void Enemy::setX(float x)
 {
     position.x = x;
     hitbox.x = x;
+}
+void Enemy::setActive(bool Active)
+{
+    active = Active;
+}
+bool Enemy::isActive() const
+{
+    return active;
 }
 float Enemy::getVelocityX() const
 {

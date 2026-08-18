@@ -5,6 +5,8 @@
 #include "PowerUps.hpp"
 #include "Blocks.hpp"
 #include "Enemy.hpp"
+#include "FireBall.hpp"
+#include "Shell.hpp"
 
 
 int main() {
@@ -15,15 +17,17 @@ int main() {
     std::vector<Block> blocks;
     std::vector<PowerUp> powerUps;
     std::vector<Enemy> enemies;
+    std::vector<FireBall> fireballs;
+    std::vector<Shell> shells;
     blocks.push_back(Block({200, 300, 50, 50}, SOLID));
-    blocks.push_back(Block({200, 425, 50, 50}, SOLID));
     blocks.push_back(Block({300, 300, 50, 50}, BRICK));
     blocks.push_back(Block({400, 300, 50, 50}, QUESTION, BlockContent::POWERUP));
     blocks.push_back(Block({500, 300, 50, 50}, QUESTION, BlockContent::POWERUP));
-    enemies.push_back(Enemy(EnemyType::GOOMBA, {600, 300}));
-    enemies.push_back(Enemy(EnemyType::KOOPA, {700, 300}));
+    blocks.push_back(Block({800, 300, 50, 50}, QUESTION, BlockContent::STAR));
+    enemies.push_back(Enemy(EnemyType::GOOMBA, {1500, 420}));
+    enemies.push_back(Enemy(EnemyType::KOOPA, {1600, 420}));
     
-    Rectangle floor = {0, 475, screenWidth + 100, 125};
+    Rectangle floor = {0, 475, 2 * screenWidth, 125};
     float cameraThreshold = screenWidth * 0.45f;
 
     Camera2D camera = { 0 };
@@ -39,6 +43,17 @@ int main() {
         Vector2 marioPosition = mario.getPosition();
         float marioScreenX = marioPosition.x - camera.target.x + camera.offset.x;
         Rectangle backWall = {camera.target.x - camera.offset.x - 10, 0, 10, (float)screenHeight};
+        float cameraLeft =
+            camera.target.x - camera.offset.x;
+
+        float cameraRight =
+            cameraLeft + screenWidth;
+        Rectangle cameraArea = {
+            cameraLeft - 100.0f,
+            camera.target.y - camera.offset.y,
+            (float)screenWidth + 100.0f,
+            (float)screenHeight
+        };
         // =========
         //   input
         // =========
@@ -57,6 +72,17 @@ int main() {
         if(IsKeyReleased(KEY_UP)) {
             mario.stopJump();
         }
+        if(IsKeyDown(KEY_LEFT_SHIFT)) {
+            mario.SpeedUp();
+        }
+        if(IsKeyReleased(KEY_LEFT_SHIFT)) {
+            mario.SpeedDown();
+        }
+        if(mario.getState() == MarioState::FIRE && IsKeyPressed(KEY_Q)){
+            if(mario.getFacingDirection() == Direction::RIGHT) 
+                fireballs.push_back(FireBall(mario.getPosition(), ShootDirection::RIGHT));
+            if(mario.getFacingDirection() == Direction::LEFT) fireballs.push_back(FireBall(mario.getPosition(), ShootDirection::LEFT));
+        }
         
         // ==========
         //   Update
@@ -69,9 +95,15 @@ int main() {
             powerUp.update(deltaTime); // Update power-up positions
         }
         for(Enemy& enemy : enemies) {    
-            if(enemy.isAlive()) {
+            if(enemy.isAlive() && enemy.isActive()) {
                 enemy.update(deltaTime); // Update enemy positions
             }
+        }
+        for(Shell& shell : shells) {
+            shell.update(deltaTime);
+        }
+        for(FireBall& fireball : fireballs) {
+            fireball.update(deltaTime);
         }
         if(marioScreenX > cameraThreshold) {
             camera.target.x += marioScreenX - cameraThreshold;
@@ -105,8 +137,8 @@ int main() {
             {
                 mario.landOn(block.getHitbox().y);
             }
-        }
-        for(Block& block : blocks) { // Check for collision between Mario and blocks
+        
+        
             if(block.isDestroyed())
             {
                     continue;
@@ -144,6 +176,17 @@ int main() {
 
                     powerUps.back().generate(spawnPosition);
                 }
+                if(content == BlockContent::STAR)
+                {
+                    PowerUpType type = PowerUpType::STAR;
+                    Vector2 spawnPosition = {
+                        block.getHitbox().x,
+                        block.getHitbox().y};
+
+                    powerUps.push_back(PowerUp(type, spawnPosition));
+
+                    powerUps.back().generate(spawnPosition);
+                }
             }
 
             if(CheckCollisionRecs(mario.getLeftCheck(), block.getHitbox()))
@@ -169,6 +212,10 @@ int main() {
                 {
                     mario.MarioFire();
                 }
+                if(powerUp.getType() == PowerUpType::STAR)
+                {
+                    mario.obtainStar();
+                }
 
                 powerUp.collect();
             }
@@ -177,14 +224,14 @@ int main() {
             {
                 continue;
             }
-            if(CheckCollisionRecs(powerUp.getGroundCheck(),floor))
+            if(powerUp.isFalling() && CheckCollisionRecs(powerUp.getGroundCheck(),floor))
             {
                 powerUp.landOn(floor.y);
             }
 
             for(Block& block : blocks) // Check for collision between power-ups and blocks
             {
-                if(CheckCollisionRecs(powerUp.getGroundCheck(), block.getHitbox()))
+                if(powerUp.isFalling() && CheckCollisionRecs(powerUp.getGroundCheck(), block.getHitbox()))
                 {
                     powerUp.landOn(block.getHitbox().y);
                 }
@@ -208,26 +255,39 @@ int main() {
             {
                 continue;
             }
+            if(CheckCollisionRecs(enemy.getHitbox(), cameraArea)) {
+                enemy.setActive(true);
+            }
             if(enemy.getHitbox().x + enemy.getHitbox().width <= 0) {
                 enemy.defeat();
             }
-            if(CheckCollisionRecs(mario.getGroundCheck(), enemy.getHitbox()) && mario.isFalling()) // Check if Mario is above the enemy
+            if(mario.getStarPower())
             {
-                enemy.defeat();
-                mario.bounce();
-            }
-            else if(CheckCollisionRecs(mario.getHitbox(), enemy.getHitbox())) // Check if Mario collides with the enemy
-            {
-                if(mario.getState() == MarioState::FIRE || mario.getState() == MarioState::BIG)
+                if(CheckCollisionRecs(mario.getHitbox(), enemy.getHitbox())) enemy.defeat();
+            } else {
+                if(CheckCollisionRecs(mario.getGroundCheck(), enemy.getHitbox()) && mario.isFalling()) // Check if Mario is above the enemy
                 {
-                    mario.setState(MarioState::SMALL);
+                    enemy.defeat();
+                    mario.bounce();
+                    if(enemy.getType() == EnemyType::KOOPA)
+                    {
+                        shells.push_back(Shell({enemy.getHitbox().x, enemy.getHitbox().y + 20}));
+                    }
                 }
-                else if(mario.getState() == MarioState::SMALL)
+                else if(CheckCollisionRecs(mario.getLeftCheck(), enemy.getHitbox())
+                        || CheckCollisionRecs(mario.getRightCheck(), enemy.getHitbox())
+                        || CheckCollisionRecs(mario.getHeadCheck(), enemy.getHitbox())) // Check if Mario collides with the enemy
                 {
-                        mario.loselife();
+                    if(mario.getState() == MarioState::FIRE || mario.getState() == MarioState::BIG)
+                    {
+                        mario.setState(MarioState::SMALL);
+                    }
+                    else if(mario.getState() == MarioState::SMALL)
+                    {
+                            mario.loselife();
+                    }
                 }
             }
-
             if(CheckCollisionRecs(enemy.getGroundCheck(),floor))
             {
                 enemy.LandOn(floor.y);
@@ -296,6 +356,133 @@ int main() {
                     }
                 }
             }
+
+        for(Shell& shell : shells)
+        {
+            if(!shell.isExisting()) continue;
+
+            if(CheckCollisionRecs(shell.getGroundCheck(), floor) && shell.isFalling()) // shell on floor
+            {
+                shell.LandOn(floor.y);
+            }
+            if(CheckCollisionRecs(mario.getHitbox(), shell.getHitBox())) 
+            {
+                if(mario.getStarPower())
+                {
+                    if(CheckCollisionRecs(mario.getHitbox(), shell.getHitBox()))
+                        shell.destroy();
+                }
+                else {
+                    if(!shell.isMoving())
+                    {
+                        if(CheckCollisionRecs(mario.getGroundCheck(),shell.getTopCheck()) && mario.isFalling())
+                        {
+                            mario.bounce();
+                        }
+                        else 
+                        {
+                            float marioCenter =
+                                mario.getHitbox().x +
+                                mario.getHitbox().width / 2.0f;
+                            float shellCenter =
+                                shell.getHitBox().x +
+                                shell.getHitBox().width / 2.0f;
+                            if(marioCenter < shellCenter)
+                            {
+                                shell.Kick(ShellDirection::RIGHT);
+                            }
+                            else {
+                                shell.Kick(ShellDirection::LEFT);
+                            }
+                        }
+                    }
+                    else {
+                        if(CheckCollisionRecs(mario.getGroundCheck(), shell.getTopCheck()))
+                        {
+                            shell.Stop();
+                            mario.bounce();
+                        }
+                        else if(shell.canDamageMario()) {
+                            if(mario.getState() == MarioState::BIG || mario.getState() == MarioState::FIRE)
+                            {
+                                mario.setState(MarioState::SMALL);
+                            }
+                            else 
+                            {
+                                mario.loselife();
+                            }
+                        }  
+                    }
+                }
+            }
+            for(Enemy& enemy : enemies)
+            {
+                if(CheckCollisionRecs(enemy.getHitbox(), shell.getHitBox()) && shell.isMoving())
+                {
+                    enemy.defeat();
+                }
+            }
+            for(Block& block : blocks)
+            {
+                if(CheckCollisionRecs(shell.getGroundCheck(), block.getHitbox()) && shell.isFalling())
+                {
+                    shell.LandOn(block.getHitbox().y);
+                }
+                if(shell.isMoving()) {
+                    if(CheckCollisionRecs(shell.getRightCheck(), block.getHitbox()) 
+                        || CheckCollisionRecs(shell.getLeftCheck(), block.getHitbox()))
+                    {
+                        shell.invertDirection();
+                    }
+                }
+            }
+        }
+        for(FireBall& fireball : fireballs) 
+        {
+            if(!fireball.isActive()) continue;
+
+            if(fireball.getHitbox().x > cameraArea.x + cameraArea.width 
+                || fireball.getHitbox().x < cameraArea.x) 
+                {
+                    fireball.destroy();
+                }
+
+            if(CheckCollisionRecs(fireball.getGroundCheck(), floor)) 
+            {
+                fireball.Bounce();
+            }
+            for(Enemy& enemy : enemies) 
+            {
+                if(CheckCollisionRecs(fireball.getHitbox(), enemy.getHitbox()))
+                {
+                    fireball.destroy();
+                    enemy.defeat();
+                }
+            }
+            for(Block& block : blocks) 
+            {
+                if(CheckCollisionRecs(fireball.getGroundCheck(), block.getHitbox()))
+                {
+                    fireball.Bounce();
+                }
+                if(CheckCollisionRecs(fireball.getFrontCheck(), block.getHitbox()))
+                {
+                    fireball.destroy();
+                }
+                if(CheckCollisionRecs(fireball.getBackCheck(), block.getHitbox()))
+                {
+                    fireball.destroy();
+                }
+            }
+            for(Shell& shell : shells)
+            {
+                if(CheckCollisionRecs(fireball.getHitbox(), shell.getHitBox()))
+                {
+                    fireball.destroy();
+                    shell.destroy();
+                }
+            }
+        }
         if(mario.getCoins() >= 100) {
             mario.gainlife();
             mario.resetCoins();
@@ -314,9 +501,12 @@ int main() {
             for(PowerUp& powerUp : powerUps) powerUp.draw();
             for(Block& block : blocks) block.draw();
             for(Enemy& enemy : enemies) enemy.draw();
+            for(Shell& shell : shells) shell.draw();
+            for(FireBall& fireball : fireballs) fireball.draw();
         EndMode2D();
 
         DrawText(TextFormat("Coins: %d", mario.getCoins()), 10, 10, 20, RAYWHITE);
+        DrawText(TextFormat("Lifes: %d", mario.getLifes()), 10, 40, 20, RAYWHITE);
         EndDrawing();
     }
 

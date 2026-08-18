@@ -99,6 +99,7 @@ void PowerUp::landOn(float floorY)
 
     hitbox.y = position.y;
 }
+
 void PowerUp::generate(Vector2 blockPosition)
 {
     position.x = blockPosition.x + 8.0f; // Center the power-up on the block
@@ -134,6 +135,10 @@ bool PowerUp::isActive() const
 bool PowerUp::exists() const
 {
     return state != PowerUpState::INACTIVE;
+}
+bool PowerUp::isFalling() const
+{
+    return velocity.y > 0.0f;
 }
 Rectangle PowerUp::getHitbox() const
 {

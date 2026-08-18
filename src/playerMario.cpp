@@ -17,8 +17,12 @@ Mario::Mario()
     groundFriction = 1100.0f;
     maxFallSpeed = 700.0f;
     direction = NONE;
+    facingdirection = RIGHT;
     inGround = true;
     isGrowth = false;
+    starPower = false;
+    starTimer = 0.0f;
+    starDuration = 10.0f;
     state = MarioState::SMALL;
 }
 void Mario::update(float deltaTime)
@@ -72,6 +76,25 @@ void Mario::update(float deltaTime)
 
     Hitbox.x = position.x;
     Hitbox.y = position.y;
+
+    if(starPower)
+    {
+        starTimer += deltaTime;
+
+        if(starTimer >= starDuration)
+        {
+            starPower = false;
+            starTimer = 0.0f;
+        }
+    }
+
+    if(state == MarioState::BIG || state == MarioState::FIRE) {
+        Hitbox.height = 100;
+    } else 
+    {
+        Hitbox.height = 50;
+        isGrowth = false;
+    }
 }
 void Mario::jump()
 {
@@ -110,14 +133,39 @@ void Mario::gainlife()
 {
     lifes++;
 }
-Direction Mario::setDirection(Direction dir)
+void Mario::setDirection(Direction dir)
 {
     direction = dir;
-    return direction;
+
+    if(dir == LEFT || dir == RIGHT)
+    {
+        facingdirection = dir;
+    }
+
+}
+Direction Mario::getFacingDirection() const
+{
+    return facingdirection;
 }
 Rectangle Mario::getHitbox()
 {
     return Hitbox;
+}
+bool Mario::getStarPower() const
+{
+    return starPower;
+}
+void Mario::obtainStar()
+{
+    starPower = true;
+}
+void Mario::SpeedUp()
+{
+    maxMoveSpeed = 350;
+}
+void Mario::SpeedDown()
+{
+    maxMoveSpeed = 200;
 }
 Vector2 Mario::getPosition() {
     return position;
@@ -172,7 +220,6 @@ void Mario::MarioGrowth()
         return; // Already in BIG state, do nothing
     }
     state = MarioState::BIG;
-    Hitbox.height = 100;
     isGrowth = true;
 }
 void Mario::MarioFire()
@@ -233,6 +280,15 @@ void Mario::draw()
     } else if(state == MarioState::BIG) {
         DrawRectangleRec(Hitbox, RED);
     } else if(state == MarioState::FIRE) {
-        DrawRectangleRec(Hitbox, RAYWHITE);
+        DrawRectangleRec(Hitbox, ORANGE);
+    }
+    if(starPower)
+    {
+        int blink = (int)(starTimer * 12.0f);
+
+        if(blink % 2 == 0)
+        {
+            DrawRectangleRec(Hitbox, RAYWHITE);
+        }
     }
 }
