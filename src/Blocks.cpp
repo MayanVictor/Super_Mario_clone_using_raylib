@@ -22,6 +22,10 @@ void Block::draw()
         case QUESTION:
             blockColor = isUsed ? DARKGRAY : YELLOW;
             break;
+        case FLOOR:
+            blockColor = {176, 51, 20, 255}; // an red-orange color for the floor
+            break;
+
     }
     DrawRectangleRec(hitbox, blockColor);
 }

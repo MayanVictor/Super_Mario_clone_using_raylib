@@ -6,32 +6,62 @@ Mario::Mario()
 {
     lifes = 3;
     coins = 0;
-    position = { 100.0f, 425.0f };
+    position = {0.0f, 0.0f};
     velocity = { 0.0f, 0.0f };
     acceleration = 900.0f;
     Hitbox = { position.x, position.y, 50.0f, 50.0f };
     gravity = 1400.0f;
     fallGravityMultiplier = 1.5f;
     maxMoveSpeed = 200.0f;
-    jumpSpeed = 750.0f;
+    jumpSpeed = 850.0f;
     groundFriction = 1100.0f;
     maxFallSpeed = 700.0f;
-    direction = NONE;
-    facingdirection = RIGHT;
+    direction = Direction::NONE;
+    action = MarioAction::NORMAL;
+    facingdirection = Direction::RIGHT;
     inGround = true;
     isGrowth = false;
     starPower = false;
+    wasHit = false;
     starTimer = 0.0f;
     starDuration = 10.0f;
+    invencibilityTimer = 0.0f;
     state = MarioState::SMALL;
 }
 void Mario::update(float deltaTime)
 {
-    if(direction == LEFT)
+    if(action == MarioAction::ENTERING_PIPE)
+    {
+        position.y += 80.0f * deltaTime;
+
+        Hitbox.x = position.x;
+        Hitbox.y = position.y;
+
+        return;
+    }
+    if(action == MarioAction::ENTERING_PIPE_RIGHT)
+    {
+        position.x += 40.0f * deltaTime;
+
+        Hitbox.x = position.x;
+        Hitbox.y = position.y;
+
+        return;
+    }
+    if(action == MarioAction::EXITING_PIPE)
+    {
+        position.y -= 80.0f * deltaTime;
+
+        Hitbox.x = position.x;
+        Hitbox.y = position.y;
+
+        return;
+    }
+    if(direction == Direction::LEFT)
     {
         velocity.x -= acceleration * deltaTime;
     }
-    else if(direction == RIGHT)
+    else if(direction == Direction::RIGHT)
     {
         velocity.x += acceleration * deltaTime;
     }
@@ -87,9 +117,18 @@ void Mario::update(float deltaTime)
             starTimer = 0.0f;
         }
     }
+    if(wasHit)
+    {
+        invencibilityTimer += deltaTime;
+        if(invencibilityTimer >= 1.5f)
+        {
+            wasHit = false;
+            invencibilityTimer = 0.0f;
+        }
+    }
 
     if(state == MarioState::BIG || state == MarioState::FIRE) {
-        Hitbox.height = 100;
+        Hitbox.height = 80;
     } else 
     {
         Hitbox.height = 50;
@@ -110,9 +149,9 @@ void Mario::bounce()
 }
 void Mario::stopJump()
 {
-    if(velocity.y < -400.0f)
+    if(velocity.y < -500.0f)
     {
-        velocity.y = -400.0f;
+        velocity.y = -500.0f;
     }
 }
 void Mario::hitCeiling(float blockBottom)
@@ -133,19 +172,31 @@ void Mario::gainlife()
 {
     lifes++;
 }
+void Mario::isHit()
+{
+    wasHit = true;
+}
 void Mario::setDirection(Direction dir)
 {
     direction = dir;
 
-    if(dir == LEFT || dir == RIGHT)
+    if(dir == Direction::LEFT || dir == Direction::RIGHT)
     {
         facingdirection = dir;
     }
 
 }
+void Mario::setMarioAction(MarioAction Action)
+{
+    action = Action;
+}
 Direction Mario::getFacingDirection() const
 {
     return facingdirection;
+}
+MarioAction Mario::getMarioAction() const
+{
+    return action;
 }
 Rectangle Mario::getHitbox()
 {
@@ -154,6 +205,10 @@ Rectangle Mario::getHitbox()
 bool Mario::getStarPower() const
 {
     return starPower;
+}
+bool Mario::isInvincible() const
+{
+    return wasHit;
 }
 void Mario::obtainStar()
 {
@@ -225,7 +280,7 @@ void Mario::MarioGrowth()
 void Mario::MarioFire()
 {
     state = MarioState::FIRE;
-    Hitbox.height = 100;
+    Hitbox.height = 80;
 }
 void Mario::hitWallOnRight(float blockLeft)
 {
@@ -268,19 +323,53 @@ MarioState Mario::getState() const
 {
     return state;
 }
-MarioState Mario::setState(MarioState newState)
+void Mario::setState(MarioState newState)
 {
     state = newState;
-    return state;
+}
+void Mario::setPosition(Vector2 pos)
+{
+    position = pos;
+    Hitbox.x = position.x;
+    Hitbox.y = position.y;
 }
 void Mario::draw()
 {
-    if(state == MarioState::SMALL) {
-        DrawRectangleRec(Hitbox, RED);
+    Rectangle Body = Hitbox;
+    Rectangle Face;
+
+    /**if(state == MarioState::SMALL) {
+        Face = {Hitbox.x, Hitbox.y + 10, Hitbox.width , 10};
+        DrawRectangleRec(Body, RED);
+        DrawRectangleRec(Face, BEIGE);
     } else if(state == MarioState::BIG) {
-        DrawRectangleRec(Hitbox, RED);
+        Face = {Hitbox.x, Hitbox.y + 15, Hitbox.width, 25};
+        DrawRectangleRec(Body, RED);
+        DrawRectangleRec(Face, BEIGE);
     } else if(state == MarioState::FIRE) {
-        DrawRectangleRec(Hitbox, ORANGE);
+        Face = {Hitbox.x, Hitbox.y + 15, Hitbox.width , 25};
+        DrawRectangleRec(Body, ORANGE);
+        DrawRectangleRec(Face, BEIGE);
+    }**/
+    switch(state)
+    {
+        case(MarioState::SMALL) :
+            Face = {Hitbox.x, Hitbox.y + 10, Hitbox.width , 10};
+            DrawRectangleRec(Body, RED);
+            DrawRectangleRec(Face, BEIGE);
+            break;
+        case(MarioState::BIG) :
+            Face = {Hitbox.x, Hitbox.y + 15, Hitbox.width, 25};
+            DrawRectangleRec(Body, RED);
+            DrawRectangleRec(Face, BEIGE);
+            break;
+        case(MarioState::FIRE) :
+            Face = {Hitbox.x, Hitbox.y + 15, Hitbox.width , 25};
+            DrawRectangleRec(Body, ORANGE);
+            DrawRectangleRec(Face, BEIGE);
+            break;
+        default :
+            break;
     }
     if(starPower)
     {
@@ -289,6 +378,14 @@ void Mario::draw()
         if(blink % 2 == 0)
         {
             DrawRectangleRec(Hitbox, RAYWHITE);
+        }
+    }
+    if(wasHit)
+    {
+        int shading = (int)(invencibilityTimer * 6.0f);
+        if(shading % 2 == 0)
+        {
+            DrawRectangleRec(Hitbox, {245, 245, 245, 100});
         }
     }
 }

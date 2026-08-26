@@ -1,5 +1,6 @@
 #include "Shell.hpp"
 #include <raylib.h>
+#include <raymath.h>
 
 Shell::Shell(Vector2 inicialPosition)
 {
@@ -73,9 +74,25 @@ void Shell::draw()
 
     DrawRectangleRec(hitbox, DARKGREEN);
 }
+float Shell::getVelocityX()
+{
+    return velocity.x;
+}
 void Shell::invertDirection()
 {
     velocity.x *= -1.0f;
+}
+void Shell::hitWallOnRight(float blockLeft)
+{
+    position.x = blockLeft - hitbox.width;
+    velocity.x = -fabs(velocity.x);
+    hitbox.x = position.x;
+}
+void Shell::hitWallOnLeft(float blockRight)
+{
+    position.x = blockRight;
+    velocity.x = fabs(velocity.x);
+    hitbox.x = position.x;
 }
 void Shell::destroy()
 {
@@ -111,7 +128,7 @@ Rectangle Shell::getGroundCheck()
 }
 Rectangle Shell::getTopCheck()
 {
-    return {hitbox.x + 3, hitbox.y - 3, hitbox.width - 6, 3};
+    return {hitbox.x + 3, hitbox.y - 3, hitbox.width - 6, 5};
 }
 Rectangle Shell::getRightCheck()
 {

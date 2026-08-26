@@ -124,6 +124,14 @@ void PowerUp::hitWallOnLeft(float blockRight)
     velocity.x = fabs(velocity.x);
     hitbox.x = position.x;
 }
+void PowerUp::invertDirection()
+{
+    velocity.x *= -1;
+}
+void PowerUp::Bounce()
+{
+    velocity.y -= 20.0f;
+}
 void PowerUp::collect()
 {
     state = PowerUpState::INACTIVE;

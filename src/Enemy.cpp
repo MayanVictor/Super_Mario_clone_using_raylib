@@ -34,18 +34,33 @@ void Enemy::update(float deltaTime)
 }
 void Enemy::draw()
 {
-    if(!alive)
-        return;
+    float eyebrowWidth = 25.0f;
+    float eyebrowHeight = 8.0f;
+    Rectangle leftEyebrow = {hitbox.x + 14, hitbox.y + 10, eyebrowWidth, eyebrowHeight};
 
+    Rectangle rightEyebrow = {hitbox.x + 34, hitbox.y + 10, eyebrowWidth, eyebrowHeight};
+    if(!alive) {
+        return;
+    }
     switch(type) {
-        case EnemyType::GOOMBA:
-            DrawRectangleV(position, {50, 50}, BROWN);
+        case EnemyType::GOOMBA: {
+            DrawRectangleRec({hitbox.x, hitbox.y, hitbox.width, 30}, BROWN);
+            DrawRectangleRec({hitbox.x + 10, hitbox.y + 30, hitbox.width - 10, 15}, BEIGE);
+            DrawRectangleRec({hitbox.x - 10, hitbox.y + 35, 20, 15}, BLACK);
+            DrawRectangleRec({hitbox.x + hitbox.width - 15, hitbox.y + 32, 20, 15}, BLACK);
+            DrawRectangleRec({hitbox.x + 5, hitbox.y + 10, 15, 15}, RAYWHITE);
+            DrawRectangleRec({hitbox.x + 30, hitbox.y + 10, 15, 15}, RAYWHITE);
+            DrawRectangleRec({hitbox.x + 10, hitbox.y + 12, 10, 10}, BLACK);
+            DrawRectangleRec({hitbox.x + 30, hitbox.y + 12, 10, 10}, BLACK);
+            DrawRectanglePro(leftEyebrow, {leftEyebrow.width / 2.0f, leftEyebrow.height / 2.0f}, 15, BLACK);
+            DrawRectanglePro(rightEyebrow, {rightEyebrow.width / 2.0f, rightEyebrow.height / 2.0f}, -15, BLACK);
             break;
-        case EnemyType::KOOPA:
-            DrawRectangleV(position, {50, 50}, GREEN);
+        }
+        case EnemyType::KOOPA: {
+            DrawRectangleRec(hitbox, GREEN);
+            DrawRectangleRec({hitbox.x - 10, hitbox.y - 20, 30, 50}, BEIGE);
             break;
-        default:
-            break;
+        }
     }
 }
 void Enemy::LandOn(float floorY)
