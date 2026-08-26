@@ -1,7 +1,7 @@
 #pragma once
 #include <raylib.h>
 
-enum BlockType { SOLID, BRICK, QUESTION};
+enum BlockType { SOLID, BRICK, QUESTION, FLOOR};
 enum class BlockContent { NONE, COIN, POWERUP, STAR };
 class Block {
 public:

@@ -13,11 +13,13 @@ public:
     void generate(Vector2 blockPosition);
     void draw();
     void collect();
+    void Bounce();
 
     void landOn(float y);
     void hitWallOnRight(float blockLeft);
     void hitWallOnLeft(float blockRight);
-
+    void invertDirection();
+    
     Rectangle getHitbox() const;
     PowerUpType getType() const;
     PowerUpState getState() const;

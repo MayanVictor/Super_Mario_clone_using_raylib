@@ -19,6 +19,9 @@ class Shell
         bool canDamageMario() const;
         void destroy();
         void invertDirection();
+        void hitWallOnLeft(float blockLeft);
+        void hitWallOnRight(float blockRight);
+        float getVelocityX();
         ShellState getShellState() const;
         Rectangle getHitBox();
         Rectangle getGroundCheck();

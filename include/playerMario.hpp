@@ -1,8 +1,9 @@
 #pragma once
 #include <raylib.h>
 
-enum Direction { LEFT, RIGHT, NONE };
-enum MarioState { SMALL, BIG, FIRE };
+enum class Direction { LEFT, RIGHT, NONE };
+enum class MarioState { SMALL, BIG, FIRE };
+enum class MarioAction { NORMAL, ENTERING_PIPE, ENTERING_PIPE_RIGHT, EXITING_PIPE };
 class Mario {
     public:
         Mario();
@@ -18,8 +19,8 @@ class Mario {
         Rectangle getHeadCheck() const; 
         Rectangle getLeftCheck() const;
         Rectangle getRightCheck() const;
-        MarioState setState(MarioState newState);
         MarioState getState() const ;
+        MarioAction getMarioAction() const;
         Vector2 getPosition();
         void MarioGrowth();
         void MarioFire();
@@ -31,9 +32,14 @@ class Mario {
         void addCoin();
         void SpeedUp();
         void SpeedDown();
+        void setState(MarioState newState);
+        void setMarioAction(MarioAction Action);
+        void setPosition(Vector2 pos);
+        void isHit();
         int getLifes() const;
         int getCoins() const;
         bool getStarPower() const;
+        bool isInvincible() const;
         void obtainStar();
         float getVelocityX() const;
         void resetCoins();
@@ -46,6 +52,7 @@ class Mario {
         Direction direction;
         Direction facingdirection;
         MarioState state;
+        MarioAction action;
         int lifes;
         int coins;
         float gravity;
@@ -58,6 +65,8 @@ class Mario {
         bool inGround;
         bool isGrowth;
         bool starPower;
+        bool wasHit;
         float starTimer;
+        float invencibilityTimer;
         float starDuration;
 };
